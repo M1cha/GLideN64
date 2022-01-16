@@ -14,7 +14,7 @@
 #include "Debugger.h"
 #include "osal_keys.h"
 
-#ifndef MUPENPLUSAPI
+#if !defined(MUPENPLUSAPI) && !defined(LIBAPI)
 #include "windows/GLideN64_windows.h"
 #endif
 
@@ -30,7 +30,7 @@ bool getCursorPos(long & _x, long & _y)
 #ifdef OS_WINDOWS
 	POINT pt;
 	const bool res = GetCursorPos(&pt) == TRUE;
-#ifndef MUPENPLUSAPI
+#if !defined(MUPENPLUSAPI) && !defined(LIBAPI)
 	ScreenToClient(hWnd, &pt);
 #else
 	static HWND hWnd = NULL;

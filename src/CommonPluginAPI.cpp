@@ -6,6 +6,9 @@
 
 #include "PluginAPI.h"
 
+#define EXPORT __attribute__((visibility("default")))
+#define CALL
+
 extern "C" {
 
 EXPORT BOOL CALL InitiateGFX (GFX_INFO Gfx_Info)
@@ -58,6 +61,7 @@ EXPORT void CALL ChangeWindow(void)
 	api().ChangeWindow();
 }
 
+#ifndef LIBAPI
 EXPORT void CALL FBWrite(unsigned int addr, unsigned int size)
 {
 	api().FBWrite(addr, size);
@@ -72,8 +76,9 @@ EXPORT void CALL FBGetFrameBufferInfo(void *pinfo)
 {
 	api().FBGetFrameBufferInfo(pinfo);
 }
+#endif
 
-#ifndef MUPENPLUSAPI
+#if !defined(MUPENPLUSAPI) && !defined(LIBAPI)
 EXPORT void CALL FBWList(FrameBufferModifyEntry *plist, unsigned int size)
 {
 	api().FBWList(plist, size);

@@ -279,6 +279,7 @@ void PluginAPI::ChangeWindow()
 		dwnd().closeWindow();
 }
 
+#ifdef MUPENPLUSAPI
 void PluginAPI::FBWrite(unsigned int _addr, unsigned int _size)
 {
 	FBInfo::fbInfo.Write(_addr, _size);
@@ -297,8 +298,9 @@ void PluginAPI::FBGetFrameBufferInfo(void * _pinfo)
 {
 	FBInfo::fbInfo.GetInfo(_pinfo);
 }
+#endif
 
-#ifndef MUPENPLUSAPI
+#if !defined(MUPENPLUSAPI) && !defined(LIBAPI)
 void PluginAPI::FBWList(FrameBufferModifyEntry * _plist, unsigned int _size)
 {
 	FBInfo::fbInfo.WriteList(reinterpret_cast<FBInfo::FrameBufferModifyEntry*>(_plist), _size);

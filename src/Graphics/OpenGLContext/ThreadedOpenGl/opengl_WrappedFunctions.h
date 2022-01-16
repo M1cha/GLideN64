@@ -21,6 +21,8 @@
 
 #ifdef MUPENPLUSAPI
 #include <mupenplus/GLideN64_mupenplus.h>
+#elif defined(LIBAPI)
+#include <lib/GLideN64_lib.h>
 #else
 #include <Graphics/OpenGLContext/windows/WindowsWGL.h>
 #endif
@@ -5225,6 +5227,108 @@ public:
 	void commandToExecute() override
 	{
 		::CoreVideo_GL_SwapBuffers();
+		m_swapBuffersCallback();
+	}
+
+private:
+	void set(std::function<void()> swapBuffersCallback)
+	{
+		m_swapBuffersCallback = swapBuffersCallback;
+	}
+
+	std::function<void()> m_swapBuffersCallback;
+};
+#elif defined(LIBAPI)
+class LibCallbackSetVideoModeCommand : public OpenGlCommand
+{
+public:
+	LibCallbackSetVideoModeCommand() :
+		OpenGlCommand(true, false, "LibCallback_SetVideoMode", false)
+	{
+	}
+
+	static std::shared_ptr<OpenGlCommand> get(int screenWidth, int screenHeight, BOOL fullscreen, int& returnValue)
+	{
+		static int poolId = OpenGlCommandPool::get().getNextAvailablePool();
+		auto ptr = getFromPool<LibCallbackSetVideoModeCommand>(poolId);
+		ptr->set(screenWidth, screenHeight, fullscreen, returnValue);
+		return ptr;
+	}
+
+	void commandToExecute() override
+	{
+		*m_returnValue = pluginCallbacks.SetVideoMode(pluginContext, m_screenWidth, m_screenHeight, m_fullscreen);
+
+		initGLFunctions();
+	}
+
+private:
+	void set(int screenWidth, int screenHeight, BOOL fullscreen, int& returnValue)
+	{
+		m_screenWidth = screenWidth;
+		m_screenHeight = screenHeight;
+		m_fullscreen = fullscreen;
+		m_returnValue = &returnValue;
+	}
+
+	int m_screenWidth;
+	int m_screenHeight;
+	BOOL m_fullscreen;
+	int* m_returnValue;
+};
+
+class LibCallbackResizeWindowCommand : public OpenGlCommand
+{
+public:
+	LibCallbackResizeWindowCommand() :
+		OpenGlCommand(true, false, "LibCallback_ResizeWindow", false)
+	{
+	}
+
+	static std::shared_ptr<OpenGlCommand> get(int screenWidth, int screenHeight)
+	{
+		static int poolId = OpenGlCommandPool::get().getNextAvailablePool();
+		auto ptr = getFromPool<LibCallbackResizeWindowCommand>(poolId);
+		ptr->set(screenWidth, screenHeight);
+		return ptr;
+	}
+
+	void commandToExecute() override
+	{
+		pluginCallbacks.ResizeWindow(pluginContext, m_screenWidth, m_screenHeight);
+	}
+
+private:
+	void set(int screenWidth, int screenHeight)
+	{
+		m_screenWidth = screenWidth;
+		m_screenHeight = screenHeight;
+	}
+
+	int m_screenWidth;
+	int m_screenHeight;
+};
+
+
+class LibCallbackGLSwapBuffersCommand : public OpenGlCommand
+{
+public:
+	LibCallbackGLSwapBuffersCommand() :
+		OpenGlCommand(false, false, "LibCallback_GL_SwapBuffers", false)
+	{
+	}
+
+	static std::shared_ptr<OpenGlCommand> get(std::function<void()> swapBuffersCallback)
+	{
+		static int poolId = OpenGlCommandPool::get().getNextAvailablePool();
+		auto ptr = getFromPool<LibCallbackGLSwapBuffersCommand>(poolId);
+		ptr->set(swapBuffersCallback);
+		return ptr;
+	}
+
+	void commandToExecute() override
+	{
+		pluginCallbacks.SwapBuffers(pluginContext);
 		m_swapBuffersCallback();
 	}
 

@@ -5,6 +5,7 @@ option(PANDORA "Set to ON if targeting an OpenPandora" ${PANDORA})
 option(ODROID "Set to ON if targeting an Odroid" ${ODROID})
 option(MUPENPLUSAPI "Set to ON for Mupen64Plus plugin" ${MUPENPLUSAPI})
 option(MUPENPLUSAPI_GLIDENUI "Set to ON for GLideNUI for Mupen64Plus" ${MUPENPLUSAPI_GLIDENUI})
+option(LIBAPI "Set to ON for library interface" ${LIBAPI})
 option(MESA "Set to ON to disable Raspberry Pi autodetection" ${MESA})
 option(VERO4K "Set to ON if targeting a Vero4k" ${VERO4K})
 option(ANDROID "Set to ON if targeting an Android device" ${ANDROID})
@@ -35,6 +36,7 @@ project( GLideN64 )
 
 include(GNUInstallDirs)
 
+set(GLideN64_LINKAGE SHARED)
 set(GLideN64_SOURCES
   3DMath.cpp
   Combiner.cpp
@@ -251,6 +253,25 @@ if(MUPENPLUSAPI)
   else()
       set(GLideN64_DLL_NAME mupen64plus-video-GLideN64)
   endif()
+elseif(LIBAPI)
+  add_definitions(
+	-DLIBAPI
+  )
+  include_directories( . inc )
+  set(GLideN64_SOURCES_UNIX
+	LibPluginAPI.cpp
+	lib/CommonAPIImpl_lib.cpp
+	lib/Config_lib.cpp
+	lib/MemoryStatus_lib.cpp
+	lib/LibAPIImpl.cpp
+	Graphics/OpenGLContext/lib/lib_DisplayWindow.cpp
+  )
+  set_source_files_properties(port_dp.c PROPERTIES COMPILE_FLAGS "-I/home/m1cha/nbu/oot/include -D_LANGUAGE_C")
+
+  set(GLideN64_SOURCES_WIN ${GLideN64_SOURCES_UNIX}
+  )
+  set(GLideN64_DLL_NAME libgliden64)
+  set(GLideN64_LINKAGE STATIC)
 else(MUPENPLUSAPI)
   if(UNIX)
     message(FATAL_ERROR "UNIX build requires MUPENPLUSAPI!")
@@ -526,7 +547,7 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
-add_library( ${GLideN64_DLL_NAME} SHARED ${GLideN64_SOURCES} ${PATH_REVISION})
+add_library( ${GLideN64_DLL_NAME} ${GLideN64_LINKAGE} ${GLideN64_SOURCES} ${PATH_REVISION})
 
 set_target_properties(
 	${GLideN64_DLL_NAME}

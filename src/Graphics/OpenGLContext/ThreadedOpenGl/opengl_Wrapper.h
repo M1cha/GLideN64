@@ -210,6 +210,10 @@ namespace opengl {
 		static void CoreVideo_GL_SetAttribute(m64p_GLattr attribute, int value);
 		static void CoreVideo_GL_GetAttribute(m64p_GLattr attribute, int *value);
 		static void CoreVideo_GL_SwapBuffers();
+#elif defined(LIBAPI)
+		static int LibCallback_SetVideoMode(int screenWidth, int screenHeight, BOOL fullscreen);
+		static void LibCallback_ResizeWindow(int screenWidth, int screenHeight);
+		static void LibCallback_GL_SwapBuffers();
 #else
 		//Windows GL context functions
 		static bool windowsStart();

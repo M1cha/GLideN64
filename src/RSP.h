@@ -22,7 +22,11 @@ extern RSPInfo RSP;
 extern u32 DepthClearColor;
 extern u32 rectDepthBufferCopyFrame;
 
+#ifdef LIBAPI
+#define RSP_SegmentToPhysical( segaddr ) (segaddr)
+#else
 #define RSP_SegmentToPhysical( segaddr ) ((gSP.segment[(segaddr >> 24) & 0x0F] + (segaddr & RDRAMSize)) & RDRAMSize)
+#endif
 
 void RSP_Init();
 void RSP_ProcessDList();

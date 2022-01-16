@@ -155,8 +155,8 @@ void RSP_ProcessDList()
 		u32 uc_dstart = *(u32*)&DMEM[0x0FD8];
 		u32 uc_dsize = *(u32*)&DMEM[0x0FDC];
 
-		if ((uc_start != RSP.uc_start) || (uc_dstart != RSP.uc_dstart))
-			gSPLoadUcodeEx(uc_start, uc_dstart, uc_dsize);
+		//if ((uc_start != RSP.uc_start) || (uc_dstart != RSP.uc_dstart))
+		gSPLoadUcodeEx(uc_start, uc_dstart, uc_dsize);
 
 		depthBufferList().setCleared(false);
 
@@ -264,6 +264,8 @@ void RSP_Init()
 			RDRAMSize = 0x7FFFFF;
 		else
 			RDRAMSize = 0x3FFFFF;
+#elif defined(LIBAPI)
+		RDRAMSize = UINTPTR_MAX;
 #else // OS_WINDOWS
 		RDRAMSize = 1024 * 1024 * 8 - 1;
 #endif // OS_WINDOWS
@@ -273,6 +275,7 @@ void RSP_Init()
 	RSP.LLE = false;
 	RSP.infloop = false;
 
+#if 0
 	// get the name of the ROM
 	char romname[21];
 	for (int i = 0; i < 20; ++i)
@@ -352,6 +355,9 @@ void RSP_Init()
 		config.generalEmulation.hacks |= hack_noDepthFrameBuffers;
 
 	api().FindPluginPath(RSP.pluginpath);
+#else
+	config.generalEmulation.hacks |= hack_subscreen | hack_ZeldaMonochrome;
+#endif
 
 	RSP_SetDefaultState();
 }

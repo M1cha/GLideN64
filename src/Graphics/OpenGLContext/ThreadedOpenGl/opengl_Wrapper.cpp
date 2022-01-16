@@ -1506,6 +1506,36 @@ namespace opengl {
 		else
 			CoreVideoGLSwapBuffersCommand::get([]{ReduceSwapBuffersQueued();})->performCommandSingleThreaded();
 	}
+#elif defined(LIBAPI)
+	int FunctionWrapper::LibCallback_SetVideoMode(int screenWidth, int screenHeight, BOOL fullscreen)
+	{
+		int returnValue;
+
+		if (m_threaded_wrapper)
+			executeCommand(LibCallbackSetVideoModeCommand::get(screenWidth, screenHeight, fullscreen, returnValue));
+		else
+			LibCallbackSetVideoModeCommand::get(screenWidth, screenHeight, fullscreen, returnValue)->performCommandSingleThreaded();
+
+		return returnValue;
+	}
+
+	void FunctionWrapper::LibCallback_ResizeWindow(int screenWidth, int screenHeight)
+	{
+		if (m_threaded_wrapper)
+			executeCommand(LibCallbackResizeWindowCommand::get(screenWidth, screenHeight));
+		else
+			LibCallbackResizeWindowCommand::get(screenWidth, screenHeight)->performCommandSingleThreaded();
+	}
+
+	void FunctionWrapper::LibCallback_GL_SwapBuffers()
+	{
+		++m_swapBuffersQueued;
+
+		if (m_threaded_wrapper)
+			executeCommand(LibCallbackGLSwapBuffersCommand::get([]{ReduceSwapBuffersQueued();}));
+		else
+			LibCallbackGLSwapBuffersCommand::get([]{ReduceSwapBuffersQueued();})->performCommandSingleThreaded();
+	}
 #else
 	bool FunctionWrapper::windowsStart()
 	{

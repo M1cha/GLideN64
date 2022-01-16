@@ -361,7 +361,9 @@ void GBIInfo::loadMicrocode(u32 uc_start, u32 uc_dstart, u16 uc_dsize)
 	current.address = uc_start;
 	current.dataAddress = uc_dstart;
 	current.dataSize = uc_dsize;
-	current.type = NONE;
+	current.type = F3DZEX2OOT;
+	_makeCurrent(&current);
+	return;
 
 	// See if we can identify it by CRC
 	const u32 uc_crc = CRC_Calculate_Strict( 0xFFFFFFFF, &RDRAM[uc_start & 0x1FFFFFFF], 4096 );

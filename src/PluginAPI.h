@@ -3,6 +3,16 @@
 
 #ifdef MUPENPLUSAPI
 #include "m64p_plugin.h"
+#elif defined(LIBAPI)
+#include "winlnxdefs.h"
+extern "C" {
+#include "gliden64api.h"
+}
+
+#define IMPORT extern "C"
+#define EXPORT __attribute__((visibility("default")))
+#define CALL
+typedef void * m64p_dynlib_handle;
 #else
 #include "windows/GLideN64_windows.h"
 #include "ZilmarGFX_1_3.h"
@@ -47,25 +57,7 @@ public:
 	void GetUserCachePath(wchar_t * _strPath);
 	bool isRomOpen() const { return m_bRomOpen; }
 
-#ifndef MUPENPLUSAPI
-	// Zilmar
-	void DllTest(HWND /*_hParent*/) {}
-	void DrawScreen() {}
-	void CloseDLL(void) {}
-
-	void CaptureScreen(char * _Directory);
-	void DllConfig(HWND _hParent);
-	void GetDllInfo (PLUGIN_INFO * PluginInfo);
-	void ReadScreen(void **_dest, long *_width, long *_height);
-
-	void DllAbout(/*HWND _hParent*/);
-
-	// FrameBufferInfo extension
-	void FBWrite(unsigned int addr, unsigned int size);
-	void FBWList(FrameBufferModifyEntry *plist, unsigned int size);
-	void FBRead(unsigned int addr);
-	void FBGetFrameBufferInfo(void *pinfo);
-#else
+#ifdef MUPENPLUSAPI
 	// MupenPlus
 	void ResizeVideoOutput(int _Width, int _Height);
 	void ReadScreen2(void * _dest, int * _width, int * _height, int _front);
@@ -86,6 +78,27 @@ public:
 
 	// FrameBufferInfo extension
 	void FBWrite(unsigned int addr, unsigned int size);
+	void FBRead(unsigned int addr);
+	void FBGetFrameBufferInfo(void *pinfo);
+#elif defined(LIBAPI)
+	int PluginStartup(void *Context, PluginCallbacks Callbacks);
+	void ResizeVideoOutput(int _Width, int _Height);
+#else
+	// Zilmar
+	void DllTest(HWND /*_hParent*/) {}
+	void DrawScreen() {}
+	void CloseDLL(void) {}
+
+	void CaptureScreen(char * _Directory);
+	void DllConfig(HWND _hParent);
+	void GetDllInfo (PLUGIN_INFO * PluginInfo);
+	void ReadScreen(void **_dest, long *_width, long *_height);
+
+	void DllAbout(/*HWND _hParent*/);
+
+	// FrameBufferInfo extension
+	void FBWrite(unsigned int addr, unsigned int size);
+	void FBWList(FrameBufferModifyEntry *plist, unsigned int size);
 	void FBRead(unsigned int addr);
 	void FBGetFrameBufferInfo(void *pinfo);
 #endif
